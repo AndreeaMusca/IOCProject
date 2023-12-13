@@ -22,46 +22,26 @@ MelodyPlayer player(buzzer);  // Instantiate MelodyPlayer with buzzer pin
 
 //...............................................................................................
 
-void swichLed(){
-  if (Serial.available() > 0) {
-    char input = Serial.read();
 
-    if (input == '1') {
-      digitalWrite(LED_BUILTIN, HIGH);
-    }
-
-    if (input == '0') {
-      digitalWrite(LED_BUILTIN, LOW);
-    }
-
-    delay(100);
-  }
-}
 
 void readTemperatureAndHumidity() {
   float temperature = TH02.ReadTemperature();
   float humidity = TH02.ReadHumidity();
 
-  // Display temperature and humidity on the LCD screen
-  lcd.setCursor(0, 0);
-  lcd.print("Temperature:");
-  lcd.print(temper);
-
-  lcd.setCursor(0, 1);
-  lcd.print("Humidity:");
-  lcd.print(humidity);
+  Serial.print("T:"); 
+  Serial.print(temperature);
+  Serial.print(",H:");
+  Serial.println(humidity);
 
 }
 
 
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(9600);
   TH02.begin();
 }
 
 void loop() {
-  swichLed();
   readTemperatureAndHumidity();
-  delay(200);
+  delay(2000);
 }
