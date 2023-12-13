@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.IO.Ports;
 
 namespace ArduinoAPI.Controllers
@@ -13,7 +11,7 @@ namespace ArduinoAPI.Controllers
 
 		public ArduinoController()
 		{
-			_serialPort = new SerialPort("COM4", 9600);
+			_serialPort = new SerialPort("COM6", 9600);
 			try
 			{
 				_serialPort.Open();
@@ -24,14 +22,12 @@ namespace ArduinoAPI.Controllers
 			}
 		}
 
-		
-		[HttpPost("ChangeLEDStatus")]
+
+		[HttpPut("ChangeLEDStatus")]
 		public IActionResult ChangeLed([FromBody] string status)
 		{
 			try
-			{
-				//EnsurePortOpen();
-
+			{ 
 				if (_serialPort.IsOpen)
 				{
 					if (status == "on")
@@ -61,9 +57,9 @@ namespace ArduinoAPI.Controllers
 				return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
 			}
 
-			
+
 		}
 
-		
+
 	}
 }
