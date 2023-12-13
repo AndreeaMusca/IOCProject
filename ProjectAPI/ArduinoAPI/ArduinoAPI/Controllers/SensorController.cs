@@ -54,6 +54,55 @@ public class SensorController : ControllerBase
 		}
 	}
 
+	[HttpPost("ChangeStepperSpeed")]
+	public IActionResult ChangeLed([FromBody] string status)
+	{
+		try
+		{
+
+			if (_serialPort.IsOpen)
+			{
+				if (status == "low")
+				{
+					_serialPort.Write("1");
+					_serialPort.Close();
+					return Ok("Command sent to Arduino: Stepper speed LOW");
+				}
+				else if (status == "medium")
+				{
+					_serialPort.Write("2");
+					_serialPort.Close();
+					return Ok("Command sent to Arduino: Stepper speed MEDIUM");
+				}
+				else if (status == "high")
+				{
+					_serialPort.Write("3");
+					_serialPort.Close();
+					return Ok("Command sent to Arduino: Stepper speed HIGH");
+				}
+				else
+				{
+					return BadRequest("Invalid command.");
+				}
+			}
+			else
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, "Serial port is not open");
+			}
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
+		}
+
+
+	}
+
+
+
+
+
+
 
 	public class TemperatureHumidityData
 	{
@@ -71,3 +120,5 @@ public class SensorController : ControllerBase
 	}
 
 }
+
+
