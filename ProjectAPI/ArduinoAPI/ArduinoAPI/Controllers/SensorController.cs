@@ -55,20 +55,20 @@ public class SensorController : ControllerBase
 	}
 
 	[HttpPut("ChangeStepperSpeed")]
-	public IActionResult ChangeStepperSpeed([FromBody] string status)
+	public IActionResult ChangeStepperSpeed([FromBody] int status)
 	{
 		try
 		{
 
 			if (_serialPort.IsOpen)
 			{
-				if (status == "low")
+				if (status == 1)
 				{
 					_serialPort.Write("S:1");
 					_serialPort.Close();
 					return Ok("Command sent to Arduino: Stepper speed LOW");
 				}
-				else if (status == "high")
+				else if (status == 2)
 				{
 					_serialPort.Write("S:2");
 					_serialPort.Close();

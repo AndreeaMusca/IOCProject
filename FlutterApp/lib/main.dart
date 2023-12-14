@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:http/http.dart' as http;
@@ -29,13 +32,56 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String selectedBuzzerOption = 'Option 1';
-  String selectedMotorOption = 'Option A';
+  String selectedBuzzerOption = 'Tone 1';
+  String selectedMotorOption = 'Slow';
   double spinBoxMaxTValue = 0;
   double spinBoxMinTValue = 0;
   double spinBoxMaxHValue = 0;
   double spinBoxMinHValue = 0;
-  TextEditingController idController = TextEditingController();
+  double temperature = 0.0;
+  double humidity = 0.0;
+  @override
+  void initState() {
+    super.initState();
+    // Start the timer when the widget is initialized
+    startTimer();
+  }
+
+  @override
+  void dispose() {
+    // Dispose the timer when the widget is disposed
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Timer? _timer;
+
+  void startTimer() {
+    // Refresh temperature and humidity every 3 seconds
+    _timer = Timer.periodic(Duration(seconds: 3), (timer) async {
+      await fetchTemperatureAndHumidity();
+    });
+  }
+
+  Future<void> fetchTemperatureAndHumidity() async {
+    try {
+      var url = Uri.http('10.0.2.2:5220', '/api/Sensor/TemperatureAndHumidity');
+      var response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = json.decode(response.body);
+        setState(() {
+          temperature = data['temperature'];
+          humidity = data['humidity'];
+        });
+      } else {
+        // Handle error cases if needed
+        print('Failed to fetch data: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,45 +97,85 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               buildSensorDataContainer(),
               const SizedBox(height: 16),
-              buildSpinBoxWithButton(
-                  spinBoxMinTValue, 'Min temperature', () async {
-                var url = Uri.http('http://localhost:5220/api/Sensor/ChangeMinTemperature');
-                var response = await http.put(url, body: {spinBoxMinTValue});
-              }),
-              buildSpinBoxWithButton(
-                  spinBoxMaxTValue, 'Max temperature', () async {
-                var url = Uri.http('localhost:5220', '/api/Sensor/ChangeMaxTemperature');
-                var response = await http.put(
-                    url,
+              buildSpinBoxWithButton(spinBoxMinTValue, 'Min temperature',
+                  () async {
+                var url = Uri.http(
+                    '10.0.2.2:5220', '/api/Sensor/ChangeMinTemperature');
+                var response = await http.put(url,
                     headers: {'Content-Type': 'application/json'},
-                    body: spinBoxMaxTValue.toString());
-                print(response);
+                    body: spinBoxMinTValue.toInt().toString());
               }),
-              buildSpinBoxWithButton(spinBoxMaxHValue, 'Min humidity', () { }),
-              buildSpinBoxWithButton(spinBoxMinHValue, 'Max humidity', () {}),
+              buildSpinBoxWithButton(spinBoxMaxTValue, 'Max temperature',
+                  () async {
+                var url = Uri.http(
+                    '10.0.2.2:5220', '/api/Sensor/ChangeMaxTemperature');
+                var response = await http.put(url,
+                    headers: {'Content-Type': 'application/json'},
+                    body: spinBoxMaxTValue.toInt().toString());
+                print(response.body);
+              }),
+              buildSpinBoxWithButton(spinBoxMaxHValue, 'Min humidity',
+                  () async {
+                var url =
+                    Uri.http('10.0.2.2:5220', '/api/Sensor/ChangeMinHumidity');
+                var response = await http.put(url,
+                    headers: {'Content-Type': 'application/json'},
+                    body: spinBoxMinHValue.toInt().toString());
+              }),
+              buildSpinBoxWithButton(spinBoxMinHValue, 'Max humidity',
+                  () async {
+                var url =
+                    Uri.http('10.0.2.2:5220', '/api/Sensor/ChangeMaxHumidity');
+                var response = await http.put(url,
+                    headers: {'Content-Type': 'application/json'},
+                    body: spinBoxMaxHValue.toInt().toString());
+              }),
               const SizedBox(height: 16),
               buildButtonUnderDropdown(
-                'Buzzer',
-                ['Option 1', 'Option 2', 'Option 3'],
+                'Buzzer Tone',
+                ['Tone 1', 'Tone 2', 'Tone 3'],
                 selectedBuzzerOption,
                 (String? newValue) {
                   setState(() {
                     selectedBuzzerOption = newValue!;
                   });
                 },
-                () {},
+                () async {
+                  int x = 1;
+                  if (selectedBuzzerOption == 'Tone 1') x = 1;
+                  if (selectedBuzzerOption == 'Tone 2') x = 2;
+                  if (selectedBuzzerOption == 'Tone 3') x = 3;
+                  var url =
+                      Uri.http('10.0.2.2:5220', '/api/Sensor/ChangeBuzzerTone');
+                  var response = await http.put(
+                    url,
+                    headers: {'Content-Type': 'application/json'},
+                    body: x.toString(),
+                  );
+                },
               ),
               const SizedBox(height: 16),
               buildButtonUnderDropdown(
-                'Motor',
-                ['Option A', 'Option B'],
+                'Motor Speed',
+                ['Slow', 'High'],
                 selectedMotorOption,
                 (String? newValue) {
                   setState(() {
                     selectedMotorOption = newValue!;
                   });
                 },
-                () {},
+                () async {
+                  int x= 1;
+                  if(selectedMotorOption=='Slow') x=1;
+                  if(selectedMotorOption=='High') x=2;
+                  var url = Uri.http(
+                      '10.0.2.2:5220', '/api/Sensor/ChangeStepperSpeed');
+                  var response = await http.put(url,
+                      headers: {'Content-Type': 'application/json'},
+                      body: x.toString());
+                  print(response.body);
+                  print(x);
+                },
               ),
             ],
           ),
@@ -108,9 +194,9 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildDataRow('Temperature:', '25°C'),
+          buildDataRow('Temperature:', '$temperature°C'),
           const SizedBox(height: 16),
-          buildDataRow('Humidity:', '50%'),
+          buildDataRow('Humidity:', '$humidity%'),
         ],
       ),
     );
@@ -142,6 +228,19 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         SpinBox(
           value: spinBoxValue,
+          onChanged: (value) {
+            setState(() {
+              if (label == 'Min temperature') {
+                spinBoxMinTValue = value;
+              } else if (label == 'Max temperature') {
+                spinBoxMaxTValue = value;
+              } else if (label == 'Min humidity') {
+                spinBoxMinHValue = value;
+              } else if (label == 'Max humidity') {
+                spinBoxMaxHValue = value;
+              }
+            });
+          },
         ),
         SizedBox(
           width: double.infinity,
