@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:http/http.dart' as http;
 
-
 void main() {
   runApp(const MyApp());
 }
@@ -32,10 +31,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String selectedBuzzerOption = 'Option 1';
   String selectedMotorOption = 'Option A';
-  ValueNotifier<double> spinBox1Value = ValueNotifier(0);
-  ValueNotifier<double> spinBox2Value = ValueNotifier(0);
-  ValueNotifier<double> spinBox3Value = ValueNotifier(0);
-  ValueNotifier<double> spinBox4Value = ValueNotifier(0);
+  double spinBoxMaxTValue = 0;
+  double spinBoxMinTValue = 0;
+  double spinBoxMaxHValue = 0;
+  double spinBoxMinHValue = 0;
   TextEditingController idController = TextEditingController();
 
   @override
@@ -50,91 +49,48 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Temperature:',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                        Text(
-                          '25°C',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Text(
-                          'Humidity:',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                        Text(
-                          '50%',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              buildSensorDataContainer(),
               const SizedBox(height: 16),
-
-              TextField(
-                controller: idController,
-                style: const TextStyle(fontSize: 18),
-                decoration: const InputDecoration(
-                  labelText: 'Enter ID',
-                  labelStyle: TextStyle(fontSize: 18),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () {
-                    print('Update ID pressed');
-                  },
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    primary: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  ),
-                  child: const Text(
-                    'Update ID',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              buildSpinBoxWithButton(spinBox1Value, 'Min temperature', spinBox2Value.value, spinBox2Value),
-              buildSpinBoxWithButton(spinBox2Value, 'Max temperature', spinBox1Value.value, spinBox1Value),
-              buildSpinBoxWithButton(spinBox3Value, 'Min humidity', spinBox4Value.value, spinBox4Value),
-              buildSpinBoxWithButton(spinBox4Value, 'Max humidity', spinBox3Value.value, spinBox3Value),
-
-              const SizedBox(height: 16),
-              buildButtonUnderDropdown('Buzzer', ['Option 1', 'Option 2', 'Option 3'], selectedBuzzerOption, (String? newValue) {
-                setState(() {
-                  selectedBuzzerOption = newValue!;
-                });
+              buildSpinBoxWithButton(
+                  spinBoxMinTValue, 'Min temperature', () async {
+                var url = Uri.http('http://localhost:5220/api/Sensor/ChangeMinTemperature');
+                var response = await http.put(url, body: {spinBoxMinTValue});
               }),
-              const SizedBox(height: 16),
-              buildButtonUnderDropdown('Motor', ['Option A', 'Option B'], selectedMotorOption, (String? newValue) {
-                setState(() {
-                  selectedMotorOption = newValue!;
-                });
+              buildSpinBoxWithButton(
+                  spinBoxMaxTValue, 'Max temperature', () async {
+                var url = Uri.http('localhost:5220', '/api/Sensor/ChangeMaxTemperature');
+                var response = await http.put(
+                    url,
+                    headers: {'Content-Type': 'application/json'},
+                    body: spinBoxMaxTValue.toString());
+                print(response);
               }),
+              buildSpinBoxWithButton(spinBoxMaxHValue, 'Min humidity', () { }),
+              buildSpinBoxWithButton(spinBoxMinHValue, 'Max humidity', () {}),
+              const SizedBox(height: 16),
+              buildButtonUnderDropdown(
+                'Buzzer',
+                ['Option 1', 'Option 2', 'Option 3'],
+                selectedBuzzerOption,
+                (String? newValue) {
+                  setState(() {
+                    selectedBuzzerOption = newValue!;
+                  });
+                },
+                () {},
+              ),
+              const SizedBox(height: 16),
+              buildButtonUnderDropdown(
+                'Motor',
+                ['Option A', 'Option B'],
+                selectedMotorOption,
+                (String? newValue) {
+                  setState(() {
+                    selectedMotorOption = newValue!;
+                  });
+                },
+                () {},
+              ),
             ],
           ),
         ),
@@ -142,7 +98,41 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Column buildSpinBoxWithButton(ValueNotifier<double> spinBoxValue, String label, double maxValue, ValueNotifier<double> oppositeSpinBoxValue) {
+  Container buildSensorDataContainer() {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          buildDataRow('Temperature:', '25°C'),
+          const SizedBox(height: 16),
+          buildDataRow('Humidity:', '50%'),
+        ],
+      ),
+    );
+  }
+
+  Row buildDataRow(String label, String value) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 18, color: Colors.white),
+        ),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 18, color: Colors.white),
+        ),
+      ],
+    );
+  }
+
+  Column buildSpinBoxWithButton(
+      double spinBoxValue, String label, void Function() onPressed) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -151,21 +141,12 @@ class _MyHomePageState extends State<MyHomePage> {
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         SpinBox(
-          value: spinBoxValue.value,
-          onChanged: (value) {
-            if (value <= maxValue && value <= oppositeSpinBoxValue.value) {
-              spinBoxValue.value = value;
-            } else {
-              print('Value cannot be higher than Max value');
-            }
-          },
+          value: spinBoxValue,
         ),
         SizedBox(
           width: double.infinity,
           child: TextButton(
-            onPressed: () {
-              print('Button pressed for $label');
-            },
+            onPressed: onPressed,
             style: TextButton.styleFrom(
               backgroundColor: Colors.blue,
               primary: Colors.white,
@@ -182,7 +163,13 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget buildButtonUnderDropdown(String label, List<String> options, String selectedValue, void Function(String?) onChanged) {
+  Widget buildButtonUnderDropdown(
+    String label,
+    List<String> options,
+    String selectedValue,
+    void Function(String?) onChanged,
+    void Function() onPressed,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -195,22 +182,18 @@ class _MyHomePageState extends State<MyHomePage> {
           child: DropdownButton<String>(
             value: selectedValue,
             onChanged: onChanged,
-            items: options
-                .map<DropdownMenuItem<String>>((String value) {
+            items: options.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value, style: const TextStyle(fontSize: 16)),
               );
-            })
-                .toList(),
+            }).toList(),
           ),
         ),
         SizedBox(
           width: double.infinity,
           child: TextButton(
-            onPressed: () {
-              print('Button pressed for $label');
-            },
+            onPressed: onPressed,
             style: TextButton.styleFrom(
               backgroundColor: Colors.blue,
               primary: Colors.white,
