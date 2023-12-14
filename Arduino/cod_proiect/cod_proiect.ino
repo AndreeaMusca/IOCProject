@@ -3,41 +3,66 @@
 #include <LiquidCrystal.h>
 #include <TH02_dev.h>
 #include <Stepper.h>
-
-#define A 4
-#define B 7
-#define C 12
-#define D 13
-#define NUMBER_OF_STEPS_PER_REV 2038
+#include "PinConstants.h"
 
 TH02_dev TH02;
-LiquidCrystal lcd(0, 1, 8, 9, 10, 11);
-
-int RED_LED = 2;
-int GREEN_LED = 3;
-int buzzer = 5;
-
-MelodyPlayer player(buzzer);
+MelodyPlayer player(BUZZER);
 Stepper stepper(NUMBER_OF_STEPS_PER_REV, A, B, C, D);
-
-void changeStepperSpeed() {
-  int speed = 10;
-  if (Serial.available() > 0) {
-    char inputSpeed = Serial.read();
-    
-    if (inputSpeed == '1') {
-      speed = 30;
-    } else if (inputSpeed == '2') {
-      speed = 60;
-    } else if (inputSpeed == '3') {
-      speed = 90;
-    }
+int speed = 10;
+int step = -NUMBER_OF_STEPS_PER_REV;
+ 
+void changeStepperSpeed(int param) {
+  switch (param) {
+    case 1:
+      speed = 5;
+      step = NUMBER_OF_STEPS_PER_REV;
+      break;
+    case 2:
+      speed = 10;
+      step = -NUMBER_OF_STEPS_PER_REV;
+      break;
+    default:
+      speed = 10;
+      step = -NUMBER_OF_STEPS_PER_REV;
+      break;
   }
-  stepper.setSpeed(speed);
-    stepper.step(-NUMBER_OF_STEPS_PER_REV);
-    delay(1000);
 }
 
+void moveStepper()
+{
+  stepper.setSpeed(speed);
+  stepper.step(step);
+}
+
+void changeBuzzerTone(int tone) {
+  // Handle buzzer tone change based on the received command
+  // Implement this function as per your buzzer's functionality
+}
+
+//The commands should look like "S:1", "S:2", "B:1",....
+void processSerialData() {
+  if (Serial.available() > 0) {
+    String input = Serial.readStringUntil('\n'); 
+
+    if (input.length() >= 3) {
+      char command = input.charAt(0); // Get the command type
+      int value = input.substring(2).toInt(); // Extract the value
+
+      switch (command) {
+        case 'S': // Stepper command
+          changeStepperSpeed(value);
+          break;
+        case 'B': // Buzzer command
+          changeBuzzerTone(value);
+          break;
+        default:
+          break;
+      }
+    }
+    Serial.flush();
+  }
+ 
+}
 
 void readTemperatureAndHumidity() {
   float temperature = TH02.ReadTemperature();
@@ -49,14 +74,59 @@ void readTemperatureAndHumidity() {
   Serial.println(humidity);
 }
 
+
+void checkTemperatureAndHumidity() {
+  float temper = TH02.ReadTemperature();
+  float humidity = TH02.ReadHumidity();
+  
+  if (temper > 27) {
+    tone(BUZZER, 500);
+    digitalWrite(RED_LED, HIGH);
+    moveStepper();
+  } else if ((temper < 17) || (humidity > 70) || (humidity < 10)) {
+    tone(BUZZER, 500);
+    digitalWrite(RED_LED, HIGH);
+    delay(300);
+    digitalWrite(RED_LED, LOW);
+    delay(200);
+  } else {
+    noTone(BUZZER);
+    digitalWrite(RED_LED, LOW);
+    digitalWrite(GREEN_LED, HIGH);
+    delay(500);
+    digitalWrite(GREEN_LED, LOW);
+    delay(200);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void setup() {
   Serial.begin(9600);
   TH02.begin();
+  stepper.setSpeed(5);
+  player.play();
 }
 
 void loop() {
+  processSerialData();
   readTemperatureAndHumidity();
-  changeStepperSpeed();
-  
-  
+  checkTemperatureAndHumidity();
 }

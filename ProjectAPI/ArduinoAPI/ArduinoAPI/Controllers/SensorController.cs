@@ -64,19 +64,13 @@ public class SensorController : ControllerBase
 			{
 				if (status == "low")
 				{
-					_serialPort.Write("1");
+					_serialPort.Write("S:1");
 					_serialPort.Close();
 					return Ok("Command sent to Arduino: Stepper speed LOW");
 				}
-				else if (status == "medium")
-				{
-					_serialPort.Write("2");
-					_serialPort.Close();
-					return Ok("Command sent to Arduino: Stepper speed MEDIUM");
-				}
 				else if (status == "high")
 				{
-					_serialPort.Write("3");
+					_serialPort.Write("S:2");
 					_serialPort.Close();
 					return Ok("Command sent to Arduino: Stepper speed HIGH");
 				}

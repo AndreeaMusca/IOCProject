@@ -4,7 +4,7 @@ MelodyPlayer::MelodyPlayer(int buzzerPin) : _buzzerPin(buzzerPin) {
   pinMode(_buzzerPin, OUTPUT);
 }
 
-void MelodyPlayer::play(int tempo) {
+void MelodyPlayer::play() {
 
   
   int melody[] = {
@@ -21,6 +21,7 @@ void MelodyPlayer::play(int tempo) {
 
 };
 
+  int tempo = 140; 
   int notes = sizeof(melody) / sizeof(melody[0]) / 2;
   int wholenote = (60000 * 4) / tempo;
   int divider, noteDuration;

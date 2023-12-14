@@ -8,7 +8,7 @@ class MelodyPlayer {
 public:
   MelodyPlayer(int buzzerPin);
 
-  void play(int tempo);
+  void play();
 
 private:
   int _buzzerPin;
