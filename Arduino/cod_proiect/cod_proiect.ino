@@ -122,11 +122,11 @@ void setup() {
   Serial.begin(9600);
   TH02.begin();
   stepper.setSpeed(5);
-  player.play();
+  //player.play();
 }
 
 void loop() {
-  processSerialData();
+  //processSerialData();
   readTemperatureAndHumidity();
-  checkTemperatureAndHumidity();
+  //checkTemperatureAndHumidity();
 }

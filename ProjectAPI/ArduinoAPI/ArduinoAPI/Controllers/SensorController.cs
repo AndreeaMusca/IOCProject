@@ -54,8 +54,8 @@ public class SensorController : ControllerBase
 		}
 	}
 
-	[HttpPost("ChangeStepperSpeed")]
-	public IActionResult ChangeLed([FromBody] string status)
+	[HttpPut("ChangeStepperSpeed")]
+	public IActionResult ChangeStepperSpeed([FromBody] string status)
 	{
 		try
 		{
@@ -64,13 +64,13 @@ public class SensorController : ControllerBase
 			{
 				if (status == "low")
 				{
-					_serialPort.Write("S:1");
+					_serialPort.Write("StepperSpeed:1");
 					_serialPort.Close();
 					return Ok("Command sent to Arduino: Stepper speed LOW");
 				}
 				else if (status == "high")
 				{
-					_serialPort.Write("S:2");
+					_serialPort.Write("StepperSpeed:2");
 					_serialPort.Close();
 					return Ok("Command sent to Arduino: Stepper speed HIGH");
 				}
@@ -92,11 +92,140 @@ public class SensorController : ControllerBase
 
 	}
 
+	[HttpPut("ChangeBuzzerTone")]
+	public IActionResult ChangeBuzzerTone([FromBody] int newBuzzerTone)
+	{
+		try
+		{
+
+			if (_serialPort.IsOpen)
+			{
+				_serialPort.Write($"BuzzerTone:{newBuzzerTone}");
+				_serialPort.Close();
+				return Ok($"Command sent to Arduino: BuzzerTone: {newBuzzerTone}");
+
+			}
+			else
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, "Serial port is not open");
+			}
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
+		}
 
 
+	}
 
 
+	#region Temperature and Humidity bounds
 
+	[HttpPut("ChangeMaxTemperature")]
+	public IActionResult ChangeMaxT([FromBody] int newTemperature)
+	{
+		try
+		{
+
+			if (_serialPort.IsOpen)
+			{
+				_serialPort.Write($"MaxTemperature:{newTemperature}");
+				_serialPort.Close();
+				return Ok($"Command sent to Arduino: MaxTemperature: {newTemperature}");
+
+			}
+			else
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, "Serial port is not open");
+			}
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
+		}
+
+
+	}
+
+	[HttpPut("ChangeMinTemperature")]
+	public IActionResult ChangeMinT([FromBody] int newTemperature)
+	{
+		try
+		{
+
+			if (_serialPort.IsOpen)
+			{
+				_serialPort.Write($"MinTemperature:{newTemperature}");
+				_serialPort.Close();
+				return Ok($"Command sent to Arduino: MinTemperature: {newTemperature}");
+
+			}
+			else
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, "Serial port is not open");
+			}
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
+		}
+
+
+	}
+
+	[HttpPut("ChangeMaxHumidity")]
+	public IActionResult ChangeMaxH([FromBody] int newHumidity)
+	{
+		try
+		{
+
+			if (_serialPort.IsOpen)
+			{
+				_serialPort.Write($"MaxHumidity:{newHumidity}");
+				_serialPort.Close();
+				return Ok($"Command sent to Arduino: MaxHumidity: {newHumidity}");
+
+			}
+			else
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, "Serial port is not open");
+			}
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
+		}
+
+
+	}
+
+	[HttpPut("ChangeMinHumidity")]
+	public IActionResult ChangeMinH([FromBody] int newHumidity)
+	{
+		try
+		{
+
+			if (_serialPort.IsOpen)
+			{
+				_serialPort.Write($"MinHumidity:{newHumidity}");
+				_serialPort.Close();
+				return Ok($"Command sent to Arduino: MinHumidity: {newHumidity}");
+
+			}
+			else
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, "Serial port is not open");
+			}
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
+		}
+
+
+	}
+
+	#endregion
 
 	public class TemperatureHumidityData
 	{
