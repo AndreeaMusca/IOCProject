@@ -134,7 +134,7 @@ void checkTemperatureAndHumidity() {
   if (temper > maxT) {
     tone(BUZZER, buzzerTone);
     digitalWrite(RED_LED, HIGH);
-    //moveStepper();
+    moveStepper();
   } else if ((temper < minT) || (humidity > maxH) || (humidity < minH)) {
     tone(BUZZER, buzzerTone);
     digitalWrite(RED_LED, HIGH);
@@ -158,7 +158,7 @@ void checkTemperatureAndHumidity() {
 void setup() {
   Serial.begin(9600);
   TH02.begin();
-  //player.play();
+  player.play();
   speed = 10;
   step = -NUMBER_OF_STEPS_PER_REV;
   maxT = 27;
@@ -172,6 +172,5 @@ void loop() {
   processSerialData();
   readTemperatureAndHumidity();
   checkTemperatureAndHumidity();
-  // Serial.print(maxT);
-  // delay(2000);
+ 
 }

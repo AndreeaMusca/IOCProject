@@ -40,6 +40,8 @@ class _MyHomePageState extends State<MyHomePage> {
   double spinBoxMinHValue = 0;
   double temperature = 0.0;
   double humidity = 0.0;
+  String ip='192.168.0.82';
+
   @override
   void initState() {
     super.initState();
@@ -114,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     body: spinBoxMaxTValue.toInt().toString());
                 print(response.body);
               }),
-              buildSpinBoxWithButton(spinBoxMaxHValue, 'Min humidity',
+              buildSpinBoxWithButton(spinBoxMinHValue, 'Min humidity',
                   () async {
                 var url =
                     Uri.http('10.0.2.2:5220', '/api/Sensor/ChangeMinHumidity');
@@ -122,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     headers: {'Content-Type': 'application/json'},
                     body: spinBoxMinHValue.toInt().toString());
               }),
-              buildSpinBoxWithButton(spinBoxMinHValue, 'Max humidity',
+              buildSpinBoxWithButton(spinBoxMaxHValue, 'Max humidity',
                   () async {
                 var url =
                     Uri.http('10.0.2.2:5220', '/api/Sensor/ChangeMaxHumidity');
