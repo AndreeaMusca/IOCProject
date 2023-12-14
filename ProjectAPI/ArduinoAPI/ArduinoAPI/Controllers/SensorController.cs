@@ -64,13 +64,13 @@ public class SensorController : ControllerBase
 			{
 				if (status == "low")
 				{
-					_serialPort.Write("StepperSpeed:1");
+					_serialPort.Write("S:1");
 					_serialPort.Close();
 					return Ok("Command sent to Arduino: Stepper speed LOW");
 				}
 				else if (status == "high")
 				{
-					_serialPort.Write("StepperSpeed:2");
+					_serialPort.Write("S:2");
 					_serialPort.Close();
 					return Ok("Command sent to Arduino: Stepper speed HIGH");
 				}
@@ -100,7 +100,7 @@ public class SensorController : ControllerBase
 
 			if (_serialPort.IsOpen)
 			{
-				_serialPort.Write($"BuzzerTone:{newBuzzerTone}");
+				_serialPort.Write($"B:{newBuzzerTone}");
 				_serialPort.Close();
 				return Ok($"Command sent to Arduino: BuzzerTone: {newBuzzerTone}");
 
@@ -129,7 +129,7 @@ public class SensorController : ControllerBase
 
 			if (_serialPort.IsOpen)
 			{
-				_serialPort.Write($"MaxTemperature:{newTemperature}");
+				_serialPort.Write($"M:{newTemperature}");
 				_serialPort.Close();
 				return Ok($"Command sent to Arduino: MaxTemperature: {newTemperature}");
 
@@ -155,7 +155,7 @@ public class SensorController : ControllerBase
 
 			if (_serialPort.IsOpen)
 			{
-				_serialPort.Write($"MinTemperature:{newTemperature}");
+				_serialPort.Write($"m:{newTemperature}");
 				_serialPort.Close();
 				return Ok($"Command sent to Arduino: MinTemperature: {newTemperature}");
 
@@ -181,7 +181,7 @@ public class SensorController : ControllerBase
 
 			if (_serialPort.IsOpen)
 			{
-				_serialPort.Write($"MaxHumidity:{newHumidity}");
+				_serialPort.Write($"H:{newHumidity}");
 				_serialPort.Close();
 				return Ok($"Command sent to Arduino: MaxHumidity: {newHumidity}");
 
@@ -207,7 +207,7 @@ public class SensorController : ControllerBase
 
 			if (_serialPort.IsOpen)
 			{
-				_serialPort.Write($"MinHumidity:{newHumidity}");
+				_serialPort.Write($"h:{newHumidity}");
 				_serialPort.Close();
 				return Ok($"Command sent to Arduino: MinHumidity: {newHumidity}");
 
