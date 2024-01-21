@@ -52,6 +52,10 @@ public class SensorController : ControllerBase
 		{
 			return StatusCode(500, "Error: " + ex.Message);
 		}
+		finally
+		{
+			_serialPort.Close();
+		}
 	}
 
 	[HttpPut("ChangeStepperSpeed")]
@@ -88,7 +92,10 @@ public class SensorController : ControllerBase
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
 		}
-
+		finally
+		{
+			_serialPort.Close();
+		}
 
 	}
 
@@ -114,7 +121,10 @@ public class SensorController : ControllerBase
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
 		}
-
+		finally
+		{
+			_serialPort.Close();
+		}
 
 	}
 
@@ -143,7 +153,10 @@ public class SensorController : ControllerBase
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
 		}
-
+		finally
+		{
+			_serialPort.Close();
+		}
 
 	}
 
@@ -169,7 +182,10 @@ public class SensorController : ControllerBase
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
 		}
-
+		finally
+		{
+			_serialPort.Close();
+		}
 
 	}
 
@@ -195,7 +211,10 @@ public class SensorController : ControllerBase
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
 		}
-
+		finally
+		{
+			_serialPort.Close();
+		}
 
 	}
 
@@ -222,7 +241,10 @@ public class SensorController : ControllerBase
 			return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
 		}
 
-
+		finally
+		{
+			_serialPort.Close();
+		}
 	}
 
 	#endregion
