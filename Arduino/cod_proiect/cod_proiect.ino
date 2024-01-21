@@ -15,10 +15,13 @@ int minT;
 int maxH;
 int minH;
 int buzzerTone;
+float temperature;
+float humidity;
+LiquidCrystal lcd(A0,A1,A2,A3,9,8);
 
 void readTemperatureAndHumidity() {
-  float temperature = TH02.ReadTemperature();
-  float humidity = TH02.ReadHumidity();
+  temperature = TH02.ReadTemperature();
+  humidity = TH02.ReadHumidity();
 
   Serial.print("T:");
   Serial.print(temperature);
@@ -144,10 +147,15 @@ void checkTemperatureAndHumidity() {
   } else {
     noTone(BUZZER);
     digitalWrite(RED_LED, LOW);
-    digitalWrite(GREEN_LED, HIGH);
-    delay(500);
-    digitalWrite(GREEN_LED, LOW);
-    delay(200);
+
+  // Palpitarea LED-ului verde
+    for (int i = 0; i < 3; ++i) {  // Palpită de 3 ori
+      digitalWrite(GREEN_LED, HIGH);
+      delay(200);
+      digitalWrite(GREEN_LED, LOW);
+      delay(200);
+    }
+    delay(500); // Pauză între palpitări
   }
 }
 
@@ -159,6 +167,18 @@ void setup() {
   Serial.begin(9600);
   TH02.begin();
   player.play();
+  pinMode(14,OUTPUT);
+  pinMode(15,OUTPUT);
+  pinMode(16,OUTPUT);
+  pinMode(17,OUTPUT);
+  pinMode(18,OUTPUT);
+  pinMode(19,OUTPUT);
+  
+  lcd.begin(16, 2);
+  lcd.setCursor(0, 0);
+  lcd.print("Merry"); 
+  lcd.setCursor(0, 1);
+  lcd.print("Christmas!");
   speed = 10;
   step = -NUMBER_OF_STEPS_PER_REV;
   maxT = 27;
@@ -172,5 +192,15 @@ void loop() {
   processSerialData();
   readTemperatureAndHumidity();
   checkTemperatureAndHumidity();
+  lcd.setCursor(0, 0);
+  lcd.print("Temperature:");
+  lcd.print(temperature);
+  
+  lcd.setCursor(0, 1);
+  lcd.print("Humidity:");
+  lcd.print(humidity);
+  delay(200);
+  lcd.setCursor(0, 0); 
+  lcd.print("");
  
 }
